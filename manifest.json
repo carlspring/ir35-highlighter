@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "IR35 Highlighter",
+  "version": "1.0",
+  "description": "Highlights 'Inside IR35' and 'Outside IR35' on webpages.",
+  "permissions": ["scripting"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}

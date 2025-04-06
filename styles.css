@@ -1,0 +1,11 @@
+.inside-ir35-highlight {
+  background-color: yellow;
+  color: red;
+  font-weight: bold;
+}
+
+.outside-ir35-highlight {
+  background-color: yellow;
+  color: green;
+  font-weight: bold;
+}
