@@ -2,13 +2,17 @@
   "manifest_version": 3,
   "name": "IR35 Highlighter",
   "version": "1.0",
-  "description": "Highlights 'Inside IR35' and 'Outside IR35' on webpages.",
-  "permissions": ["scripting"],
+  "description": "A highlighting tool for jobhunting contractors on webpages.",
+  "options_page": "options.html",
+  "permissions": ["scripting", "storage"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "js": [ "content.js",
+              "options.js",
+              "mark.min.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ]
 }

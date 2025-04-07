@@ -1,11 +1,17 @@
-.inside-ir35-highlight {
+.red-highlight {
   background-color: yellow;
   color: red;
   font-weight: bold;
 }
 
-.outside-ir35-highlight {
+.green-highlight {
   background-color: yellow;
   color: green;
+  font-weight: bold;
+}
+
+.security-clearance-highlight {
+  background-color: purple;
+  color: lightgrey;
   font-weight: bold;
 }
