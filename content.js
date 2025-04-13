@@ -1,22 +1,24 @@
 (() => {
     const allowedHosts = [
         "adzuna.co.uk",
+        "cwjobs.co.uk",
         "jobserve.com",
         "linkedin.com",
         "indeed.com",
         "indeed.co.uk",
         "mail.google.com",
+        "monster.co.uk",
+        "reed.co.uk",
         "offpayroll.org.uk",
         "totaljobs.com"
     ];
 
     const currentHost = window.location.hostname.toLowerCase();
     const isAllowed = allowedHosts.some(allowed =>
-                                                 currentHost === allowed || currentHost.endsWith(`.${allowed}`)
+        currentHost === allowed || currentHost.endsWith(`.${allowed}`)
     );
 
-    if (!isAllowed)
-    {
+    if (!isAllowed) {
         console.debug(`[IR35 Highlighter] Skipping ${currentHost} (not in allowedHosts)`);
         return;
     }
@@ -45,6 +47,7 @@
         "Competitive salary": "red-highlight",
         "BPSS": "security-clearance-highlight",
         "Security Clearance": "security-clearance-highlight",
+        "Security Cleared": "security-clearance-highlight",
         "Clearance Required": "security-clearance-highlight",
         "SC Clearance": "security-clearance-highlight",
         "SC Cleared": "security-clearance-highlight",
@@ -56,62 +59,68 @@
         return acc;
     }, {});
 
-    function highlightTextNode(node)
-    {
-        if (!node.nodeValue || node.parentNode.querySelector("mark")) return;
-
-        const text = node.nodeValue;
-        const lowerText = text.toLowerCase();
-        let newHTML = text;
-        let modified = false;
-
-        for (const [termLower, className] of Object.entries(termToClassMap))
-        {
-            const escaped = termLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`\\b(${escaped})\\b`, 'gi');
-
-            if (regex.test(lowerText))
-            {
-                newHTML = newHTML.replace(regex, `<mark class="${className}">$1</mark>`);
-                modified = true;
+    function highlightTextNode(node) {
+        try {
+            if (
+                !node.nodeValue ||
+                node.parentNode.querySelector("mark") ||
+                node.parentNode.nodeType !== Node.ELEMENT_NODE
+            ) {
+                return;
             }
-        }
 
-        if (modified)
-        {
-            const span = document.createElement('span');
-            span.innerHTML = newHTML;
-            node.parentNode.replaceChild(span, node);
+            const text = node.nodeValue;
+            const lowerText = text.toLowerCase();
+            let newHTML = text;
+            let modified = false;
+
+            for (const [termLower, className] of Object.entries(termToClassMap)) {
+                const escaped = termLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`\\b(${escaped})\\b`, 'gi');
+
+                if (regex.test(lowerText)) {
+                    newHTML = newHTML.replace(regex, `<mark class="${className}">$1</mark>`);
+                    modified = true;
+                }
+            }
+
+            if (modified) {
+                const span = document.createElement('span');
+                span.innerHTML = newHTML;
+                node.parentNode.replaceChild(span, node);
+            }
+        } catch (e) {
+            console.warn("[IR35 Highlighter] Error in highlightTextNode:", e);
         }
     }
 
-    function highlightPage(root = document.body)
-    {
-        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
-        const nodes = [];
+    function highlightPage(root = document.body) {
+        if (!root) return;
+        try {
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+            const nodes = [];
 
-        while (walker.nextNode())
-        {
-            nodes.push(walker.currentNode);
-        }
+            while (walker.nextNode()) {
+                nodes.push(walker.currentNode);
+            }
 
-        for (const node of nodes)
-        {
-            if (
+            for (const node of nodes) {
+                if (
                     node.parentNode &&
                     !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.parentNode.nodeName)
-            )
-            {
-                highlightTextNode(node);
+                ) {
+                    highlightTextNode(node);
+                }
             }
+        } catch (e) {
+            console.warn("[IR35 Highlighter] Error in highlightPage:", e);
         }
     }
 
     // Throttle logic to avoid infinite loops
     let throttleTimeout = null;
 
-    function throttledHighlight()
-    {
+    function throttledHighlight() {
         if (throttleTimeout) return;
         throttleTimeout = setTimeout(() => {
             throttleTimeout = null;
@@ -119,22 +128,23 @@
         }, 500); // run once every 500ms max
     }
 
-    function observeDOMChanges()
-    {
-        const observer = new MutationObserver(throttledHighlight);
-        observer.observe(document.body, {childList: true, subtree: true});
+    function observeDOMChanges() {
+        try {
+            if (!document.body) return;
+            const observer = new MutationObserver(throttledHighlight);
+            observer.observe(document.body, {childList: true, subtree: true});
+        } catch (e) {
+            console.warn("[IR35 Highlighter] Error in observeDOMChanges:", e);
+        }
     }
 
     // Init
-    if (document.readyState === "loading")
-    {
+    if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => {
             highlightPage();
             observeDOMChanges();
         });
-    }
-    else
-    {
+    } else {
         highlightPage();
         observeDOMChanges();
     }

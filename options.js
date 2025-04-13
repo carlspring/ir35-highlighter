@@ -1,36 +1,42 @@
-function updateList(hosts) {
-    const list = document.getElementById("hostList");
-    list.innerHTML = "";
-    hosts.forEach((host, index) => {
-        const li = document.createElement("li");
-        li.textContent = host;
-        const del = document.createElement("button");
-        del.textContent = "Remove";
-        del.onclick = () => {
-            hosts.splice(index, 1);
-            chrome.storage.local.set({ allowedHosts: hosts });
-            updateList(hosts);
-        };
-        li.appendChild(del);
-        list.appendChild(li);
-    });
-}
-
-document.getElementById("addHost").addEventListener("click", () => {
+document.addEventListener("DOMContentLoaded", () => {
+    const addHostButton = document.getElementById("addHost");
     const input = document.getElementById("hostInput");
-    const newHost = input.value.trim().toLowerCase();
-    if (!newHost) return;
+    const list = document.getElementById("hostList");
 
+    if (!addHostButton || !input || !list) {
+        console.warn("[IR35 Highlighter] Missing one or more UI elements: addHost, hostInput, or hostList.");
+        return;
+    }
+
+    // Load existing allowed hosts and populate the list
     chrome.storage.local.get({ allowedHosts: [] }, (data) => {
-        if (!data.allowedHosts.includes(newHost)) {
-            data.allowedHosts.push(newHost);
-            chrome.storage.local.set({ allowedHosts: data.allowedHosts });
-            updateList(data.allowedHosts);
-            input.value = "";
-        }
-    });
-});
+        const allowedHosts = data.allowedHosts || [];
 
-chrome.storage.local.get({ allowedHosts: [] }, (data) => {
-    updateList(data.allowedHosts);
+        allowedHosts.forEach(host => {
+            const li = document.createElement("li");
+            li.textContent = host;
+            list.appendChild(li);
+        });
+    });
+
+    // Add new host to storage and UI
+    addHostButton.addEventListener("click", () => {
+        const newHost = input.value.trim().toLowerCase();
+        if (!newHost) return;
+
+        chrome.storage.local.get({ allowedHosts: [] }, (data) => {
+            const allowedHosts = data.allowedHosts || [];
+
+            if (!allowedHosts.includes(newHost)) {
+                allowedHosts.push(newHost);
+
+                chrome.storage.local.set({ allowedHosts }, () => {
+                    const li = document.createElement("li");
+                    li.textContent = newHost;
+                    list.appendChild(li);
+                    input.value = "";
+                });
+            }
+        });
+    });
 });
