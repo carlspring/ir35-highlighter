@@ -2,10 +2,11 @@
     const allowedHosts = [
         "adzuna.co.uk",
         "cwjobs.co.uk",
-        "jobserve.com",
-        "linkedin.com",
+        "hackajob.com",
         "indeed.com",
         "indeed.co.uk",
+        "jobserve.com",
+        "linkedin.com",
         "mail.google.com",
         "monster.co.uk",
         "reed.co.uk",
@@ -19,7 +20,7 @@
     );
 
     if (!isAllowed) {
-        console.debug(`[IR35 Highlighter] Skipping ${currentHost} (not in allowedHosts)`);
+        console.debug(`[Keyword Highlighter] Skipping ${currentHost} (not in allowedHosts)`);
         return;
     }
 
@@ -113,7 +114,7 @@
                 }
             }
         } catch (e) {
-            console.warn("[IR35 Highlighter] Error in highlightPage:", e);
+            console.warn("[Keyword Highlighter] Error in highlightPage:", e);
         }
     }
 
@@ -134,7 +135,7 @@
             const observer = new MutationObserver(throttledHighlight);
             observer.observe(document.body, {childList: true, subtree: true});
         } catch (e) {
-            console.warn("[IR35 Highlighter] Error in observeDOMChanges:", e);
+            console.warn("[Keyword Highlighter] Error in observeDOMChanges:", e);
         }
     }
 

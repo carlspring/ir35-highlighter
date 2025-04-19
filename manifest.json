@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "IR35 Highlighter",
+  "name": "Keyword Highlighter",
   "version": "1.0",
-  "description": "A highlighting tool for jobhunting contractors on webpages.",
+  "description": "A keyword highlighting extension for Chrome.",
   "options_page": "options.html",
   "permissions": ["scripting", "storage"],
   "content_scripts": [
