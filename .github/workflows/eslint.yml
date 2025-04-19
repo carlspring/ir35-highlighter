@@ -1,15 +1,17 @@
-name: Validate Chrome Extension
+name: ESLint
 
 on:
   push:
     paths:
       - '**.js'
       - 'manifest.json'
-      - '.github/workflows/validate-extension.yml'
+      - '.github/workflows/eslint.yml'
   pull_request:
     paths:
       - '**.js'
       - 'manifest.json'
+      - '.github/workflows/eslint.yml'
+  workflow_dispatch:
 
 jobs:
   lint:
